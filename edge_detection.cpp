@@ -1,6 +1,5 @@
 #include <iostream>
-#include <vector>
-#include <unistd.h>
+#include <ctime>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -13,22 +12,22 @@ using namespace cv;
 Mat img, gray, blurred, edge;
 
 
-// Canny Edge Detection Variables
+// Adjust the CannyEdge threshold values
 int lowerThreshold = 100;
-int max_lowThreshold = 200;
+int maxThreshold = 200;
 
 
 void CannyThreshold(int, void*) {
 
-    GaussianBlur(gray,
+    GaussianBlur(gray,  //Image preprocessing
         blurred,
-        cv::Size(3, 3),  // smoothing window width and height in pixels
-        3);              // how much the image will be blurred
+        cv::Size(3, 3), 
+        3);              
 
     Canny(blurred,
         edge,
-        lowerThreshold, // lower threshold
-        50);           // higher threshold
+        lowerThreshold,         // lower threshold
+        maxThreshold);           // higher threshold
 
     imshow("Edge Detection", edge);
 }
@@ -45,6 +44,7 @@ int main() {
 
     cap.open(deviceID, apiID);
 
+    clock_t start_ticks, end_ticks;
 
     if (!cap.isOpened())
     {
@@ -53,7 +53,8 @@ int main() {
     }
      
 	while(1){
-		
+		start_ticks = clock();
+
         cap.read(img);
 	    cvtColor(img, gray, COLOR_BGR2GRAY);
 
@@ -61,11 +62,14 @@ int main() {
 
 
         // Canny Edge Detector
-	    //createTrackbar("Min Threshold:", "Edge Detection", &lowerThreshold, max_lowThreshold, CannyThreshold);
 	    CannyThreshold(0,0);
+        
+        end_ticks = clock();
+        cout << "Time: " << 1000.0 * (end_ticks-start_ticks)/CLOCKS_PER_SEC << " ms\n";
 
 
         imshow("Edge Detection", edge);
+
         if (waitKey(5) >= 0)
              break;
     }
