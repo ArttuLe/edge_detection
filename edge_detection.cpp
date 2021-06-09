@@ -1,25 +1,25 @@
 #include <iostream>
-#include <ctime>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
-#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/dnn/dnn.hpp>
+#include <opencv2/core/utility.hpp>
 
 using namespace std;
 using namespace cv;
 
-Mat img, gray, blurred, edge;
+Mat img, right_img, left_img, gray, blurred, edge;
 
 
-// Adjust the CannyEdge threshold values
+// Adjust the CannyEdge threshold values, recommended ratio is 2:1 or 3:1
 int lowerThreshold = 100;
 int maxThreshold = 200;
 
 
-void CannyThreshold(int, void*) {
+void Canny(int, void*) {
 
-    GaussianBlur(gray,  //Image preprocessing
+    GaussianBlur(gray,  
         blurred,
         cv::Size(3, 3), 
         3);              
@@ -33,7 +33,6 @@ void CannyThreshold(int, void*) {
 }
 
 
-
 int main() {
 
 
@@ -44,7 +43,10 @@ int main() {
 
     cap.open(deviceID, apiID);
 
-    clock_t start_ticks, end_ticks;
+    //Set image size
+    cap.set(CAP_PROP_FRAME_WIDTH, 2560);
+    cap.set(CAP_PROP_FRAME_HEIGHT, 720);
+
 
     if (!cap.isOpened())
     {
@@ -53,20 +55,24 @@ int main() {
     }
      
 	while(1){
-		start_ticks = clock();
 
+        double t = (double)getTickCount();
         cap.read(img);
-	    cvtColor(img, gray, COLOR_BGR2GRAY);
+
+        //Zed has 2 cameras, extract them as separate pictures.
+        left_img = img(cv::Rect(0, 0, img.cols / 2, img.rows));
+        right_img = img(cv::Rect(img.cols / 2, 0, img.cols / 2, img.rows));
+
+	    cvtColor(left_img, gray, COLOR_BGR2GRAY);
 
 	    cv::namedWindow("Edge Detection", WINDOW_AUTOSIZE);
 
 
         // Canny Edge Detector
-	    CannyThreshold(0,0);
+	    Canny(0,0);
         
-        end_ticks = clock();
-        cout << "Time: " << 1000.0 * (end_ticks-start_ticks)/CLOCKS_PER_SEC << " ms\n";
-
+        t = ((double)getTickCount() - t)/getTickFrequency();
+        cout << "Time: " << t << " s\n";
 
         imshow("Edge Detection", edge);
 
