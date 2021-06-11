@@ -3,7 +3,6 @@
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/cudaimgproc.hpp>
-#include <opencv2/dnn/dnn.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/cudafilters.hpp>
 
@@ -16,8 +15,8 @@ GpuMat gpu_img, gray, blurred, edge;
 
 
 // Adjust the CannyEdge threshold values, recommended ratio is 2:1 or 3:1
-int lowerThreshold = 100;
-int maxThreshold = 200;
+int lowerThreshold = 50;
+int maxThreshold = 150;
 
 
 int main() {
@@ -73,8 +72,8 @@ int main() {
         //download result from gpu
         edge.download(output);
         
-        t = (((double)getTickCount() - t)/getTickFrequency())*1000;
-        cout << "Time: " << t << " ms\n";
+        int fps = getTickFrequency() / ((double)getTickCount() - t);
+        cout << "FPS: " << fps << "\n";
 
         imshow("Edge Detection", output);
 

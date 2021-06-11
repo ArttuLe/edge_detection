@@ -13,16 +13,16 @@ Mat img, right_img, left_img, gray, blurred, edge;
 
 
 // Adjust the CannyEdge threshold values, recommended ratio is 2:1 or 3:1
-int lowerThreshold = 100;
-int maxThreshold = 200;
+int lowerThreshold = 50;
+int maxThreshold = 150;
 
 
 void Canny(int, void*) {
 
-    GaussianBlur(gray,  
+    GaussianBlur(gray,
         blurred,
-        cv::Size(3, 3), 
-        3);              
+        cv::Size(3, 3),
+        3);
 
     Canny(blurred,
         edge,
@@ -53,7 +53,7 @@ int main() {
         cout << "Could not open camera" << endl;
         return -1;
     }
-     
+
 	while(1){
 
         double t = (double)getTickCount();
@@ -63,18 +63,16 @@ int main() {
         left_img = img(cv::Rect(0, 0, img.cols / 2, img.rows));
         right_img = img(cv::Rect(img.cols / 2, 0, img.cols / 2, img.rows));
 
+
 	    cvtColor(left_img, gray, COLOR_BGR2GRAY);
-
 	    cv::namedWindow("Edge Detection", WINDOW_AUTOSIZE);
-
 
         // Canny Edge Detector
 	    Canny(0,0);
-        
-        t = (((double)getTickCount() - t)/getTickFrequency())*1000;
-        cout << "Time: " << t << " ms\n";
 
-        imshow("Edge Detection", edge);
+        int fps = getTickFrequency() / ((double)getTickCount() - t);
+        cout << "FPS: " << fps << "\n";
+
 
         if (waitKey(5) >= 0)
              break;
