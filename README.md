@@ -1,1 +1,3 @@
-# edge_detection
+# Jetson nano computer vision applications
+
+
