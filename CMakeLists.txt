@@ -9,6 +9,7 @@ project(edge_detection_project)
 # to the absolute path to the directory containing OpenCVConfig.cmake file
 # via the command line or GUI
 find_package(OpenCV REQUIRED)
+find_package(ZED 3 REQUIRED)
 
 # If the package has been found, several variables will
 # be set, you can find the full list with descriptions
@@ -19,13 +20,19 @@ message(STATUS "    version: ${OpenCV_VERSION}")
 message(STATUS "    libraries: ${OpenCV_LIBS}")
 message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
+message(STATUS "    ZED library status:")
+message(STATUS "    version: ${ZED_VERSION}")
+message(STATUS "    include path: ${ZED_INCLUDE_DIRS}")
+
 if(CMAKE_VERSION VERSION_LESS "2.8.11")
   # Add OpenCV headers location to your include paths
   include_directories(${OpenCV_INCLUDE_DIRS})
+  include_directories(${ZED_INCLUDE_DIRS})
 endif()
+
 
 # Declare the executable target built from your sources
 add_executable(edge_detection edge_detection.cpp)
 
 # Link your application with OpenCV libraries
-target_link_libraries(edge_detection PRIVATE ${OpenCV_LIBS})
+target_link_libraries(edge_detection ${ZED_LIBS} ${OpenCV_LIBS})
