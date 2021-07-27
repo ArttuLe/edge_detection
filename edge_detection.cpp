@@ -1,15 +1,18 @@
 #include <iostream>
 #include <time.h>
 
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/utility.hpp>
+
+#ifndef SIMD_OPENCV_ENABLE
 #define SIMD_OPENCV_ENABLE
+#endif
 #include <Simd/SimdLib.hpp>
 
+
 using namespace std;
-using namespace cv;
 
 cv::Mat img,img_resized, left_img,  gray, blurred, edge;
 
@@ -62,7 +65,7 @@ void simd_imgproc(int, void*){
 
 int main() {
 
-    VideoCapture cap;
+    cv::VideoCapture cap;
 
     int deviceID = 0;
     int  apiID = cv::CAP_V4L2; //Videocapturing via libv4l
@@ -71,23 +74,24 @@ int main() {
     cap.open(deviceID, apiID);
 
     //Set image size 720p 2560x720, WVGA 1344x376
-    cap.set(CAP_PROP_FRAME_WIDTH, 2560);
-    cap.set(CAP_PROP_FRAME_HEIGHT, 720);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 2560);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
 
+    
     if( !cap.isOpened() )
     {
-        cout << "Cannot open camera" <<endl;
+        cout << "Cannot open camera" <<std::endl;
 
         return -1;
     }
 
     if(cv::useOptimized()){
 
-	cout<< "Optimized code enabled..." << endl;
+	cout<< "Optimized code enabled..." << std::endl;
 
     }else
 
-        cout<< "Optimized code disabled..." << endl;
+        cout<< "Optimized code disabled..." << std::endl;
 
     int counter = 0;
 
@@ -99,9 +103,9 @@ int main() {
 
     while(counter < num_frames){
 
-        double start = (double)getTickCount();
+        double start = (double)cv::getTickCount();
 
-	cap >> img;
+	    cap >> img;
 
 
 
@@ -110,24 +114,27 @@ int main() {
 
 
 	//cvtColor(left_img, gray, COLOR_BGR2GRAY);
-	cv::namedWindow("Edge Detection", WINDOW_AUTOSIZE);
+	    cv::namedWindow("Edge Detection", cv::WINDOW_AUTOSIZE);
 
         // Canny Edge Detector
-	//Canny(0,0);
-        simd_imgproc(0,0);
-	counter++;
+	    Canny(0,0);
+
+        //SIMD edge detector
+        //simd_imgproc(0,0);
+
+	    counter++;
 
 
-        double end = (double)getTickCount();
+        double end = (double)cv::getTickCount();
 
-        cout << "Fps: "<<(getTickFrequency()/ (end-start))<<endl;
+        cout << "Fps: "<<(cv::getTickFrequency()/ (end-start))<<std::endl;
 
-        if (waitKey(1) >= 0)
+        if (cv::waitKey(1) >= 0)
              break;
     }
     time(&end);
 
-    cout << "Average fps over "<< num_frames << " frames: " << (num_frames / (end-start))<<endl;
+    cout << "Average fps over "<< num_frames << " frames: " << (num_frames / (end-start))<<std::endl;
 
 
 
